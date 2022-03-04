@@ -7,19 +7,33 @@ bot.on('ready', () => {
     let commands = bot.application.commands
 
     commands.create({
-        name: "hello",
-        description: "replys somthin'"
+        name: "sayhello",
+        description: "Reply hello to the user",
+        options: [{
+            name: "user",
+            description: "The user u wanna say hello to",
+            required: true,
+            type: Discord.Constants.ApplicationCommandOptionTypes.USER,
+        }
+    ]
     })
 })
 
-bot.on('interacitonCreate', (interaction) => {
-    if(interaction.isCommand()) return
+bot.on('interactionCreate', (interaction) => {
+    if(!interaction.isCommand()) return
+
     let name = interaction.commandName
     let options = interaction.options
     if(name=='hello'){
-        interaction.reqply({
+        interaction.reply({
             content: 'hello',
-            ephemeral: true
+            ephemeral: false
+        })
+    }
+    if(name=='sayhello'){
+        let user = options.getUser('user')
+        interaction.reply({
+            content: `Hello ${user.username}`
         })
     }
 })

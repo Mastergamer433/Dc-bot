@@ -12,7 +12,17 @@ bot.on('ready', () => {
     })
 })
 
-bot.on('interacitonCreate',)
+bot.on('interacitonCreate', (interaction) => {
+    if(interaction.isCommand()) return
+    let name = interaction.commandName
+    let options = interaction.options
+    if(name=='hello'){
+        interaction.reqply({
+            content: 'hello',
+            ephemeral: true
+        })
+    }
+})
 
 
 bot.login(process.env.BOT_TOKEN)

@@ -5,6 +5,7 @@ const bot = new Discord.Client({
 // require('dotenv').config()
 __basedir = __dirname;
 __config = require(`${__basedir}/../config.json`);
+require(`${__basedir}/healthChekServer.js`)();
 
 require(`${__basedir}/slash-register`)();
 let commands = require(`${__basedir}/slash-register`).commands;

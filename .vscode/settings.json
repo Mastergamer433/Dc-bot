@@ -28,5 +28,12 @@
   "peacock.color": "#369",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
-  }
+  },
+  "cSpell.words": [
+    "Cooldown",
+    "discordjs",
+    "linebreak",
+    "Mastergamer",
+    "nslookup"
+  ]
 }

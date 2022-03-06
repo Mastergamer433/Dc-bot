@@ -1,36 +1,64 @@
 const Discord = require('discord.js');
+
 const bot = new Discord.Client({
   intents: [Discord.Intents.FLAGS.GUILD_MEMBERS, Discord.Intents.FLAGS.GUILDS],
 });
 // require('dotenv').config()
+// eslint-disable-next-line no-undef
 __basedir = __dirname;
-__config = require(`${__basedir}/../config.json`);
-require(`${__basedir}/healthChekServer.js`)();
+// eslint-disable-next-line no-undef
+__config = require('../config.json');
+require('./healthCheckServer')();
+// const readline = require('readline');
+const { Economy, Cooldown } = require('./database');
 
-require(`${__basedir}/slash-register`)();
-let commands = require(`${__basedir}/slash-register`).commands;
-let readline = require('readline');
-let rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false,
-});
+const logger = require('./handlers/logger');
 
-bot.on('ready', () => {
-  console.log('The bot is online!');
+require('./slash-register')();
+const buttonHandler = require('./handlers/interactions/buttonHandler');
+
+const { commands } = require('./slash-register');
+
+// const rl = readline.createInterface({
+//   input: process.stdin,
+//   output: process.stdout,
+//   terminal: false,
+// });
+
+bot.on('ready', async () => {
+  Economy.sync();
+  Cooldown.sync();
+  // eslint-disable-next-line no-console
+  logger.info('The bot is online!');
 });
 
 bot.on('interactionCreate', async (interaction) => {
-  if (!interaction.isCommand()) return;
-
-  let name = interaction.commandName;
-  let options = interaction.options;
-
-  let commandMethod = commands.get(name);
-  if (!commandMethod) return;
-
   await interaction.deferReply();
-  commandMethod(bot, interaction);
+  if (interaction.isCommand()) {
+    const name = interaction.commandName;
+    const { options } = interaction;
+
+    const commandMethod = commands.get(name);
+    if (!commandMethod) return;
+
+    commandMethod.run(bot, interaction, options, Economy, Cooldown);
+  } else if (interaction.isButton()) {
+    buttonHandler(interaction, commands, bot);
+    // if (command == 'ban') {
+    //   member.ban();
+    //   return interaction.editReply({
+    //     content: `The user <@${member.id}> was banned!`,
+    //     ephemeral: true,
+    //   });
+    // } else if (command == 'kick') {
+    //   member.kick();
+    //   return interaction.editReply({
+    //     content: `The user <@${member.id}> was kicked!`,
+    //     ephemeral: true,
+    //   });
+    // }
+  }
 });
 
+// eslint-disable-next-line no-undef
 bot.login(__config.bot.token);
